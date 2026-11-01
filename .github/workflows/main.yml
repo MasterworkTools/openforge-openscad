@@ -1,25 +1,17 @@
-# Simple workflow for deploying static content to GitHub Pages
-name: Build application and deploy static content to Pages
+name: Production
 
 on:
-  # Runs on pushes targeting the default branch
   push:
     branches: ['main']
-
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
-  pages: write
   id-token: write
 
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
 concurrency:
-  group: 'pages'
-  cancel-in-progress: false
+  group: production
+  cancel-in-progress: false # a cancelled tofu apply leaves a half-applied state and a held lock
 
 jobs:
   lint:
@@ -93,44 +85,68 @@ jobs:
             cypress/screenshots
             cypress/snapshots/diff
 
-  # Single deploy job since we're just deploying
-  deploy:
+  tofu-apply:
     needs: [lint, test] # TODO Add e2e again once the flaking and strange behaviour is fixed
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+    environment: production
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Use Node.js 20.x
-        uses: actions/setup-node@v4
+      - uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN_PRODUCTION }}
+          role-session-name: openscad-tofu-apply
+          aws-region: us-east-1
+
+      - uses: opentofu/setup-opentofu@v1
+        with:
+          tofu_version: '1.9.0'
+          tofu_wrapper: false
+
+      - name: tofu apply
+        working-directory: terraform/environments/production
+        run: |
+          tofu init -input=false -lockfile=readonly
+          tofu apply -input=false -auto-approve
+
+  deploy:
+    needs: tofu-apply
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
         with:
           node-version: 20.x
           cache: 'npm'
 
-      - name: build
+      - name: Build
         run: |
           bash ./scripts/get-openscad.sh
           npm ci
           NODE_ENV=production npm run build
-        env:
-          TRACKER_SNIPPET: ${{ vars.TRACKER_SNIPPET }}
-          GH_ISSUE_URL: ${{ vars.GH_ISSUE_URL }}
-          GH_REPO_URL: ${{ vars.GH_REPO_URL }}
-          WEBSITE_URL: ${{ vars.WEBSITE_URL }}
-          CORSPROXY: ${{ vars.CORSPROXY }}
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      - uses: aws-actions/configure-aws-credentials@v5
         with:
-          # Upload entire dist directory
-          path: './dist'
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN_PRODUCTION }}
+          role-session-name: openscad-deploy
+          aws-region: us-east-1
 
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      # No CloudFront invalidation: the distribution uses CachingDisabled. If it
+      # ever moves to a caching policy, this job must invalidate after promoting,
+      # or a promotion will not be visible.
+      - name: Upload and promote
+        env:
+          BUCKET: openforge-openscad-website
+          SHA: ${{ github.sha }}
+        run: |
+          # An immutable copy of this build, so any past build can be put back.
+          aws s3 sync dist "s3://$BUCKET/$SHA"
+          # Promote to current/. Assets first and HTML second, so a visitor
+          # mid-promotion never gets a page whose assets have not arrived.
+          # cp, not sync: sync skips keys of equal size that are not older,
+          # which makes putting an older build back a silent no-op.
+          aws s3 cp --recursive --only-show-errors "s3://$BUCKET/$SHA" "s3://$BUCKET/current" --exclude "*.html"
+          aws s3 cp --recursive --only-show-errors "s3://$BUCKET/$SHA" "s3://$BUCKET/current" --exclude "*" --include "*.html"
+          echo "current/ now holds $SHA"
