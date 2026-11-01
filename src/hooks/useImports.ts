@@ -4,7 +4,6 @@ import { useFileSystemProvider } from '../components/providers/FileSystemProvide
 import fonts from '../etc/fonts.json';
 import libraries from '../etc/libraries.json';
 import WorkspaceFile from '../lib/WorkspaceFile';
-import fetcha from '../lib/fetcha';
 import useUrlFileWriter from './useUrlFileWriter';
 
 export default function useImports(urls?: ({ url: string; name?: string })[], autoImport = false) {

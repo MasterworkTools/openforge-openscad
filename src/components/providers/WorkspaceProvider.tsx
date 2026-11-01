@@ -30,7 +30,7 @@ export default function WorkspaceProvider({ children }: Props) {
         const filtered = files.filter(
           (f) => f.name.endsWith('.scad') && !f.path.startsWith('libraries')
         );
-        let defaultFile = filtered.find(f => f.name === 'bases-square.scad') || filtered[0];
+        const defaultFile = filtered.find(f => f.name === 'bases-square.scad') || filtered[0];
         if (defaultFile) {
           setCode(await defaultFile.text());
           setSelectedFile(defaultFile.name);
