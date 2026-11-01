@@ -3,16 +3,18 @@ model: sonnet
 verification: evidence-query — runs `.reviewers/bin/check-wiring.sh` at the base and the head and quotes the lines only the head prints.
 **Checks:** every scad include/use target, every TEXTURE × SIZE blank and every `bases-*.scad` is registered in `src/App.tsx` or Customizer.tsx's `fileImportMap` and exists in `public/scad/`; every list entry points at a real file; TEXTURE options match `texture_files` rows.
 **Spawn when:** the diff touches `public/scad/**`, `src/App.tsx`, `src/components/Workspace/Customizer.tsx`, `scripts/sync-bases.sh` or `.reviewers/bin/check-wiring.sh`.
+**Contents:** How to prove it · Flag · Do not flag
 
 The app fetches the files listed in `src/App.tsx` into the OpenSCAD virtual filesystem, and loads the STLs in `fileImportMap` on demand when their scad file is selected. A scad file that includes or imports something the lists don't register fails only at runtime in the browser. No test catches it.
 
 **How to prove it:**
 
 ```bash
-.reviewers/bin/check-wiring.sh <base-sha> | sort > /tmp/base.txt
-.reviewers/bin/check-wiring.sh <head-sha> | sort > /tmp/head.txt
-comm -13 /tmp/base.txt /tmp/head.txt   # what the PR introduced
-comm -23 /tmp/base.txt /tmp/head.txt   # what the PR fixed (report, don't flag)
+d=$(mktemp -d)
+.reviewers/bin/check-wiring.sh <base-sha> | sort > "$d/base.txt"
+.reviewers/bin/check-wiring.sh <head-sha> | sort > "$d/head.txt"
+comm -13 "$d/base.txt" "$d/head.txt"   # what the PR introduced
+comm -23 "$d/base.txt" "$d/head.txt"   # what the PR fixed (report, don't flag)
 ```
 
 Quote the new lines in the finding. The helper parses only the `texture_files` and `size_data` tables in `bases-wall-primary.scad`. If the diff makes another scad file build `import()` names from variables, flag that the helper doesn't cover it (P2).

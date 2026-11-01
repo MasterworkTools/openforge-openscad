@@ -3,13 +3,14 @@ model: sonnet
 verification: mixed — protocol and build claims are evidence-queries (quote both ends of postMessage, quote `npm run build` output); scripts are mutation (run them against a scratch copy); lifecycle concerns are judgement.
 **Checks:** the worker message protocol, virtual FS writes, worker errors reaching the UI, the esbuild output, the pinned OpenSCAD WASM download, and the bash scripts (`scripts/*.sh`).
 **Spawn when:** the diff touches `src/worker/**`, `src/lib/openSCAD/execute.ts`, `src/lib/executeWorkerJob.ts`, `esbuild*.mjs`, `scripts/**` or `package.json`.
+**Contents:** Worker and build · Scripts · Do not flag
 
 **Worker and build — flag:**
 - A message type or payload field one side sends and the other doesn't handle (`src/worker/types.ts`, `src/worker/openSCAD.ts`, `src/lib/openSCAD/execute.ts`, `src/lib/executeWorkerJob.ts`) (P1).
 - A worker error or OpenSCAD failure whose promise never settles, so the spinner hangs, or whose stderr never reaches the UI (P1).
 - FS writes that can race `callMain`, or paths that differ from the ones the scad `include` resolves (P1).
 - A worker created per render and never terminated (P2).
-- A build that no longer emits the worker, the wasm or a `public/` asset: run `npm run build` and quote `ls dist` (P1).
+- A build that no longer emits the worker, the wasm or a `public/` asset (P1). In a scratch clone, run `bash scripts/get-openscad.sh` first (it downloads the wasm into the gitignored `src/vendor/`), then `npm run build`, and quote `ls dist`.
 - `scripts/get-openscad.sh` pointing at an unversioned or "latest" URL, or not failing when the download fails (P2).
 
 **Scripts — flag:** run each script against a scratch copy (never the real `public/scad/`) and quote `git status`.

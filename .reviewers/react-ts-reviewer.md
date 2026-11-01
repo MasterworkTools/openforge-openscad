@@ -2,15 +2,19 @@
 model: sonnet
 verification: mixed — lint is an evidence-query (eslint on the changed files at base and head, new errors quoted); hook, state and race findings are judgement unless shown by a test.
 **Checks:** new eslint errors, hook dependency mistakes and stale closures, effects that loop or double-fire, async state set after a newer selection or unmount, new `any` or `@ts-ignore`.
-**Spawn when:** the diff touches `src/**/*.ts` or `src/**/*.tsx` outside `src/worker/**`, or `.eslintrc*`/`tsconfig.json`. Skip when the only change is entries in a data list (App.tsx's file list, Customizer.tsx's `fileImportMap`); `scad-wiring-reviewer` owns those.
+**Spawn when:** the diff touches `src/**/*.ts` or `src/**/*.tsx` outside `src/worker/**`, `src/lib/openSCAD/**` and `src/lib/executeWorkerJob.ts` (the parser and worker reviewers own those), or `.eslintrc*`/`tsconfig.json`. Skip when the only change is entries in a data list (App.tsx's file list, Customizer.tsx's `fileImportMap`); `scad-wiring-reviewer` owns those.
+**Contents:** How to prove lint · Flag · Do not flag
 
 **How to prove lint:**
 
 ```bash
-git stash -u   # or use a second worktree at the base
-npx eslint <changed files> > /tmp/base.txt; git stash pop
-npx eslint <changed files> > /tmp/head.txt
-diff /tmp/base.txt /tmp/head.txt
+d=$(mktemp -d)
+git worktree add -q "$d/base" <base-sha>
+ln -s "$PWD/node_modules" "$d/base/node_modules"
+(cd "$d/base" && npx eslint <changed files>) > "$d/base.txt"
+npx eslint <changed files> > "$d/head.txt"
+git worktree remove --force "$d/base"
+diff "$d/base.txt" "$d/head.txt"   # never stash: the tree may hold someone's uncommitted work
 ```
 
 Main already carries 16 lint errors (openforge_openscad-6vc). Only errors the head adds are findings.

@@ -3,6 +3,7 @@ model: sonnet
 verification: mutation — runs the parser on the scad the PR changes, or on a fixture with the new annotation shape, and quotes the parsed controls; never trusts a snapshot alone.
 **Checks:** `src/lib/openSCAD/parseParameter.ts` turns every annotation form the shipped scad uses into the right control: options, ranges, steps, groups, types. Also checks that its snapshot tests pin each change.
 **Spawn when:** the diff touches `src/lib/openSCAD/parseParameter.ts`, `tests/openSCADparseParameters.test.ts`, `tests/fixtures/**` or `tests/__snapshots__/**`, or changes a customizer annotation line in `public/scad/**` (a `// [...]` option list, a `//<number>` step, or a `/* [Group] */` header).
+**Contents:** Forms the shipped scad uses · How to prove it · Flag · Do not flag
 
 The UI has no hand-written controls. Customizer.tsx renders whatever `parseParameter.ts` extracts from the comments in the selected scad file, so a parser miss silently removes or mistypes an option.
 
@@ -13,13 +14,7 @@ The UI has no hand-written controls. Customizer.tsx renders whatever `parseParam
 
 **How to prove it:**
 
-```bash
-npx jest tests/openSCADparseParameters.test.ts
-# for a sync PR, parse a changed file and quote the controls it yields:
-npx ts-node -e "import p from './src/lib/openSCAD/parseParameter'; import fs from 'fs'; console.log(JSON.stringify(p(fs.readFileSync('public/scad/<file>','utf8')), null, 1))"
-```
-
-If `ts-node` isn't available, add a temporary fixture under `tests/fixtures/openSCAD/` in a scratch copy, run jest, and quote the snapshot diff. Never leave the fixture in the working tree.
+Run `npx jest tests/openSCADparseParameters.test.ts`. For a sync PR, parse each changed scad file in a scratch clone (`git clone --shared`, symlink `node_modules`): copy it into `tests/fixtures/openSCAD/` there, run jest, and quote the controls from the new snapshot. Never add a fixture to the real working tree. `npx ts-node` works only if ts-node is already installed; it isn't a dependency, so don't let npx download it.
 
 **Flag:**
 - A shipped scad parameter that parses wrong at the head: a lost control, the wrong type, wrong or truncated options, or a missing step (P1).
