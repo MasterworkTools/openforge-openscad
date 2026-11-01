@@ -17,7 +17,7 @@ git worktree remove --force "$d/base"
 diff "$d/base.txt" "$d/head.txt"   # never stash: the tree may hold someone's uncommitted work
 ```
 
-Main already carries 16 lint errors (openforge_openscad-6vc). Only errors the head adds are findings.
+Main lints clean (since #4), so any error at the head is a finding; the base comparison shows it is new.
 
 **Flag:**
 - A new eslint error (P2).
@@ -26,4 +26,4 @@ Main already carries 16 lint errors (openforge_openscad-6vc). Only errors the he
 - Async work (file imports, renders) whose result is applied after the user picked something else, so the old result overwrites the new one (P1 if reachable by normal clicking).
 - New `any`, `as any` or `@ts-ignore` without a reason (P3).
 
-**Do not flag:** the pre-existing lint errors, MUI styling choices, or upstream seasick code the diff didn't change.
+**Do not flag:** MUI styling choices, or upstream seasick code the diff didn't change.
