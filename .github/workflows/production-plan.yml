@@ -46,7 +46,7 @@ jobs:
             const file = 'terraform/environments/production/plan-output.txt';
             const out = fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : 'plan did not run (init or credentials failed); see the job log';
             const text = out.length > 60000 ? out.substring(0, 60000) + '\n\n...(truncated)' : out;
-            github.rest.issues.createComment({
+            await github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,

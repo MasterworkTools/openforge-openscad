@@ -87,6 +87,7 @@ jobs:
 
   tofu-apply:
     needs: [lint, test] # TODO Add e2e again once the flaking and strange behaviour is fixed
+    if: github.ref == 'refs/heads/main' # workflow_dispatch can target any branch
     runs-on: ubuntu-latest
     environment: production
     steps:
