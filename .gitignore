@@ -31,3 +31,8 @@ Thumbs.db
 .beads-credential-key
 .beads/proxieddb/
 *.gate.lock*
+
+# OpenTofu
+.terraform/
+*.tfstate*
+plan-output.txt
