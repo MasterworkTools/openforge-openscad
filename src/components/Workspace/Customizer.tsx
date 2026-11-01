@@ -67,6 +67,16 @@ const fileImportMap = {
     {name: 'stl: base: towne D', url: '/scad/towne.blank.D.stl'},
     {name: 'stl: base: towne IA', url: '/scad/towne.blank.IA.stl'},
     {name: 'stl: base: towne Q', url: '/scad/towne.blank.Q.stl'},
+    {name: 'stl: base: aztlan A', url: '/scad/aztlan.blank.A.stl'},
+    {name: 'stl: base: aztlan BA', url: '/scad/aztlan.blank.BA.stl'},
+    {name: 'stl: base: aztlan D', url: '/scad/aztlan.blank.D.stl'},
+    {name: 'stl: base: aztlan IA', url: '/scad/aztlan.blank.IA.stl'},
+    {name: 'stl: base: aztlan Q', url: '/scad/aztlan.blank.Q.stl'},
+    {name: 'stl: base: nova-trail A', url: '/scad/nova_trail.blank.A.stl'},
+    {name: 'stl: base: nova-trail BA', url: '/scad/nova_trail.blank.BA.stl'},
+    {name: 'stl: base: nova-trail D', url: '/scad/nova_trail.blank.D.stl'},
+    {name: 'stl: base: nova-trail IA', url: '/scad/nova_trail.blank.IA.stl'},
+    {name: 'stl: base: nova-trail Q', url: '/scad/nova_trail.blank.Q.stl'},
   ]
 };
 

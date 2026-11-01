@@ -24,6 +24,7 @@ export default function App() {
     {name: 'Base: Square', url: '/scad/bases-square.scad'},
     {name: 'Base: Square: S2W Wall', url: '/scad/bases-square-wall.scad'},
     {name: 'Base: Square: S2W Corner', url: '/scad/bases-square-corner.scad'},
+    {name: 'Base: Square: S2W Internal Corner', url: '/scad/bases-square-internal_corner.scad'},
     {name: 'Base: Wall: Primary Wall (Updated 0.6.7)', url: '/scad/bases-wall-primary.scad'},
     {name: 'Base: Curved (Updated 0.5.0)', url: '/scad/bases-curved.scad'},
     {name: 'Base: Curved: Radial', url: '/scad/bases-curved-radial.scad'},
@@ -55,6 +56,7 @@ export default function App() {
     {name: 'Lock: Flex Magnetic Dual', url: '/scad/lock_flex_magnetic_dual.scad'},
     {name: 'Lock: Openlock Dual', url: '/scad/lock_openlock_dual.scad'},
     {name: 'Lock: Openlock Topless Dual', url: '/scad/lock_openlock_topless_dual.scad'},
+    {name: 'Lock: Snap Magnetic', url: '/scad/lock_snap_magnetic.scad'},
 
   ], []);
 
