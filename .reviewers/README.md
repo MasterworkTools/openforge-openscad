@@ -18,10 +18,10 @@ generators in `public/scad/`.
   customizer annotations the UI is built from.
 - CI runs lint and test only on pushes to main, never on PRs. A reviewer that
   needs lint, test or build output runs it and quotes it.
-- `npm run lint` was already red on main when this roster landed
-  (openforge_openscad-6vc). Only new errors are findings.
-- The site is deployed by hand to S3/CloudFront. The workflow's GitHub Pages
-  job is dead (openforge_openscad-33m). Nobody flags a missing deploy step.
+- `npm run lint` is clean on main. Any lint error is a finding.
+- Production hosting is moving into tofu (openforge_openscad-1ur): the bucket
+  in `terraform/`, deployed by the workflow on push to main.
+  `terraform-reviewer` owns `terraform/**` and `.github/workflows/**`.
 
 ## How the pack runs
 
