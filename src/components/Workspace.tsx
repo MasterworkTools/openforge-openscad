@@ -12,7 +12,6 @@ import FileSystem from './Workspace/FileSystem';
 import Fonts from './Workspace/Fonts';
 import Libraries from './Workspace/Libraries';
 import Preview from './Workspace/Preview';
-import Sidebar from './Workspace/Sidebar';
 import { useOpenSCADProvider } from './providers/OpenscadWorkerProvider';
 import { useWorkspaceProvider } from './providers/WorkspaceProvider';
 
