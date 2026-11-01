@@ -9,7 +9,7 @@ BASES_DIR=${2:-$SCRIPT_DIR/../../openforge-bases}
 SCAD_DIR=$SCRIPT_DIR/../public/scad
 
 git -C "$BASES_DIR" fetch -q origin
-git -C "$BASES_DIR" ls-tree --name-only "$SHA" | grep -E '\.scad$|\.blank\.[A-Z]+\.stl$' |
-  while read -r f; do
+git -C "$BASES_DIR" ls-tree -z --name-only "$SHA" | grep -zE '\.scad$|\.blank\.[A-Z]+\.stl$' |
+  while IFS= read -r -d '' f; do
     git -C "$BASES_DIR" show "$SHA:$f" > "$SCAD_DIR/$f"
   done
